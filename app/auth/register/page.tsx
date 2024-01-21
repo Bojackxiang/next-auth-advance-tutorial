@@ -1,9 +1,10 @@
+import RegisterForm from '@/components/auth/register-form'
 import React from 'react'
 
-const RegisterPage = () => {
+const RegisterPage = async () => {
   return (
     <div>
-      log in page
+        <RegisterForm/>
     </div>
   )
 }
