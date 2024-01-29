@@ -10,19 +10,9 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
+  adapter: PrismaAdapter(db),
   callbacks: {
-    async signIn({ user }) {
-      // let existingUser = null;
-      // if (user.id) {
-      //   existingUser = await getUserById(user.id);
-      // } else {
-      //   return false;
-      // }
-
-      // if (!existingUser?.emailVerified) {
-      //   return false;
-      // }
-
+    async signIn({ user, account, email, profile, credentials }) {
       return true;
     },
     // 要改 session， 先改 token
@@ -53,7 +43,22 @@ export const {
       return token;
     },
   },
-  adapter: PrismaAdapter(db),
+  events: {
+    linkAccount: async ({ user }) => {
+      console.log("events.linkAccount.user: ", user);
+      await db.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: new Date(),
+        },
+      });
+    },
+  },
+  pages: {
+    signIn: '/auth/login',
+    error: '/auth/error',
+
+  },
   session: { strategy: "jwt" },
   ...authConfig,
 });

@@ -1,7 +1,11 @@
+/**
+ * middleware will decide whether the clicked route will be redirect
+ */
+
 import authConfig from "./auth.config";
 import NextAuth from "next-auth";
 import {
-  DEFAULT_LOGIN_REDIRECT,
+  DEFAULT_LOGIN_REDIRECT, 
   publicRoutes,
   authRoutes,
   apiAuthPrefix,

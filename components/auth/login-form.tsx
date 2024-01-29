@@ -20,12 +20,15 @@ import { Button } from "../ui/button";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { login } from "@/actions/login";
+import { useSearchParams } from "next/navigation";
 
 const LoginForm = () => {
   const [isPending, startTransition] = useTransition();
 
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
+  const searchParams = useSearchParams()
+  const loginError = searchParams.get('error') ? 'Email Already used with other provider!' : ''
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -94,7 +97,7 @@ const LoginForm = () => {
               )}
             />
           </div>
-          <FormError message={error} />
+          <FormError message={error || loginError} />
           <FormSuccess message={success} />
           <Button className="w-full" type="submit" disabled={isPending}>
             Login
