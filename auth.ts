@@ -12,20 +12,32 @@ export const {
 } = NextAuth({
   adapter: PrismaAdapter(db),
   callbacks: {
-    async signIn({ user, account, email, profile, credentials }) {
-      return true;
+    async signIn({ user, account }) {
+      // handle oAuth
+      if (account?.provider !== "credentials") return true;
+
+      // handle credentials user
+      const existingUser = await db.user.findFirst({
+        where: {
+          email: user.email,
+        },
+      });
+
+      if (existingUser?.emailVerified) return true;
+
+      return false;
     },
     // 要改 session， 先改 token
     async session(params) {
       // @ts-ignore
       const { session, token } = params;
-      // console.log("token: ", token);
-      // console.log("session: ", session);
 
+      //
       if (session.user) {
         session.user.role = token.role;
       }
 
+      //
       return session;
     },
     async jwt({ token }) {
@@ -55,9 +67,8 @@ export const {
     },
   },
   pages: {
-    signIn: '/auth/login',
-    error: '/auth/error',
-
+    signIn: "/auth/login",
+    error: "/auth/error",
   },
   session: { strategy: "jwt" },
   ...authConfig,
