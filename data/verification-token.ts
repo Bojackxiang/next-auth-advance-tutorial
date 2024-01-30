@@ -25,7 +25,7 @@ export const getVerificationTokenByToken = async (token: string) => {
       },
     });
 
-    return verificationByToken?.token
+    return verificationByToken
   } catch (error) {
     return null;
   }
