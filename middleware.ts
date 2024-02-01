@@ -23,11 +23,11 @@ export default auth((req) => {
 
   // 
   if (apiAuthRoute) {
-    return null; // pass 
+    return null; 
   }
 
   if (isPublicRoute) {
-    return null; // pass
+    return null; 
   }
 
   if (isAuthRoute) {

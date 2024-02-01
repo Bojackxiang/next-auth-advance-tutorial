@@ -57,7 +57,6 @@ export const {
   },
   events: {
     linkAccount: async ({ user }) => {
-      console.log("events.linkAccount.user: ", user);
       await db.user.update({
         where: { id: user.id },
         data: {

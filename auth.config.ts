@@ -22,7 +22,7 @@ export default {
     }), 
     credentials({
       async authorize(credentials) {
-        console.log("__email_and_password_credentials_provider__");
+        console.debug("__email_and_password_credentials_provider__");
         const verifiedFields = loginSchema.safeParse(credentials);
 
         if (verifiedFields.success) {
