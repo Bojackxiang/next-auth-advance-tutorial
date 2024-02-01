@@ -6,49 +6,47 @@ import { db } from "../lib/db";
 import { v4 as uuidv4 } from "uuid";
 
 export const generatePasswordResetToken = async (email: string) => {
-  // generate token
-  const token = uuidv4();
-  const expires = new Date(new Date().getTime() + 3600 * 1000); // 1 hour
-  let deleted = false;
-
-  // if not exist this token
+  let handleCases = -1; // -1: not exist, 0: expired, 1: exists and not expired
   const existingToken = await getPasswordResetTokenByEmail(email);
+  
+  // cases determine
   if (!existingToken) {
-    console.log("not exist");
-    const newToken = await db.passwordResetToken.create({
-      data: {
-        email,
-        token,
-        expires,
-      },
-    });
-    return newToken.token;
+    handleCases = -1;
   }
 
-  console.log(existingToken.expires, new Date());
-  console.log(existingToken.expires < new Date());
-  // existed but expired, delete
   if (existingToken && existingToken.expires < new Date()) {
-    console.log("exists but expired");
-    await deletePasswordResetTokenById(existingToken.id);
-    deleted = true;
+    handleCases = 0;
   }
 
-  // if delete, create new token,
-  // otherwise return existing token
-  if (deleted) {
-    const newToken = await db.passwordResetToken.create({
-      data: {
-        email,
-        token,
-        expires,
-      },
-    });
+  if (existingToken && existingToken.expires > new Date()) {
+    handleCases = 1;
+  }
 
-    return newToken.token;
-  } else {
-    console.log("exists and not expired");
-    return existingToken.token;
+  // handle cases
+  switch (handleCases) {
+    case -1:
+      const newToken = await db.passwordResetToken.create({
+        data: {
+          email,
+          token: uuidv4(),
+          expires: new Date(new Date().getTime() + 3600 * 1000), // 1 hour
+        },
+      });
+      return newToken.token;
+    case 0:
+      await deletePasswordResetTokenById(existingToken!.id);
+      const newToken2 = await db.passwordResetToken.create({
+        data: {
+          email,
+          token: uuidv4(),
+          expires: new Date(new Date().getTime() + 3600 * 1000), // 1 hour
+        },
+      });
+      return newToken2.token;
+    case 1:
+      return existingToken!.token;
+    default:
+      return null;
   }
 };
 

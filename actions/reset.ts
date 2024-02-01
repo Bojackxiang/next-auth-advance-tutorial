@@ -25,7 +25,7 @@ export const resetPassword = async (values: z.infer<typeof resetSchema>) => {
 
   // CHECK IF EMAIL EXISTS
   const existingUser = await getUserByEmail(email);
-  
+
   // handle email not exist error
   if (
     !existingUser ||
@@ -55,6 +55,11 @@ export const resetPassword = async (values: z.infer<typeof resetSchema>) => {
   } else {
     try {
       const passwordResetToken = await generatePasswordResetToken(email);
+      if (!passwordResetToken) {
+        return {
+          error: "Something is wrong!",
+        };
+      }
       await sendPasswordResetEmail(email, passwordResetToken);
       return {
         success: "Password reset email sent!",
