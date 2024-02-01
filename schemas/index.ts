@@ -27,9 +27,14 @@ export const registerSchema = z
     path: ["confirmPassword"], // path of error
   });
 
+export const resetSchema = z.object({
+  email: z.string().email({
+    message: "Email is required",
+  }),
+});
 
-  export const resetSchema = z.object({
-    email: z.string().email({
-      message: "Email is required",
-    }),
-  });
+export const newPasswordSchema = z.object({
+  email: z.string().email({
+    message: "Email is required",
+  }),
+});

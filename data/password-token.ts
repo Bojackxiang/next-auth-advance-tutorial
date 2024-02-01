@@ -8,27 +8,48 @@ import { v4 as uuidv4 } from "uuid";
 export const generatePasswordResetToken = async (email: string) => {
   // generate token
   const token = uuidv4();
-  const expires = new Date(new Date().getTime() + 36000 * 1000);
+  const expires = new Date(new Date().getTime() + 3600 * 1000); // 1 hour
+  let deleted = false;
 
-  // check if exists a password reset token with email
+  // if not exist this token
   const existingToken = await getPasswordResetTokenByEmail(email);
-
-  if (existingToken) {
-    await deletePasswordResetTokenById(existingToken.id);
+  if (!existingToken) {
+    console.log("not exist");
+    const newToken = await db.passwordResetToken.create({
+      data: {
+        email,
+        token,
+        expires,
+      },
+    });
+    return newToken.token;
   }
 
-  // create a new token
-  const newToken = await db.passwordResetToken.create({
-    data: {
-      email,
-      token,
-      expires,
-    },
-  });
+  console.log(existingToken.expires, new Date());
+  console.log(existingToken.expires < new Date());
+  // existed but expired, delete
+  if (existingToken && existingToken.expires < new Date()) {
+    console.log("exists but expired");
+    await deletePasswordResetTokenById(existingToken.id);
+    deleted = true;
+  }
 
-  return newToken.token
+  // if delete, create new token,
+  // otherwise return existing token
+  if (deleted) {
+    const newToken = await db.passwordResetToken.create({
+      data: {
+        email,
+        token,
+        expires,
+      },
+    });
 
-  // IMPROVE: CHECK THE DATE AND DECIDE WHETHER REGENERATE A NEW TOKEN OR NOT
+    return newToken.token;
+  } else {
+    console.log("exists and not expired");
+    return existingToken.token;
+  }
 };
 
 // TODO:
