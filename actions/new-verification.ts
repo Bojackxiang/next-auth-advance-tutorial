@@ -1,9 +1,11 @@
+'use server'
+
 import { db } from "@/lib/db";
 import { getUserByEmail } from "@/data/user";
 import { getVerificationTokenByToken } from "@/data/verification-token";
 import { generateVerificationToken } from "@/lib/tokens";
 
-const verification = async (token: string) => {
+export const verification = async (token: string) => {
   const existingToken = await getVerificationTokenByToken(token);
 
   //
@@ -25,12 +27,12 @@ const verification = async (token: string) => {
   const existingUser = await getUserByEmail(existingToken.email);
   if (!existingUser) {
     return {
-      error: "No  such user",
+      error: "No such user",
     };
   }
 
   //
-  db.user.update({
+  await db.user.update({
     where: {
       id: existingUser.id,
     },
@@ -41,7 +43,7 @@ const verification = async (token: string) => {
   });
 
   // 
-  db.verificationToken.delete({
+  await db.verificationToken.delete({
     where: {
     id: existingToken.id
     }
