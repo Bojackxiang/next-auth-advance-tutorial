@@ -38,3 +38,15 @@ export const newPasswordSchema = z.object({
     message: "Email is required",
   }),
 });
+
+export const passwordResetSchema = z
+  .object({
+    newPassword: z.string().min(6, {
+      message: "Minimum length is 6",
+    }),
+    confirmPassword: z.string()
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"], // path of error
+  });

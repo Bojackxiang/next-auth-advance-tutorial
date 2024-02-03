@@ -11,7 +11,7 @@ import { generateVerificationToken } from "@/lib/tokens";
 import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/mail";
 import { generatePasswordResetToken } from "@/data/password-token";
 
-export const resetPassword = async (values: z.infer<typeof resetSchema>) => {
+export const resetPasswordVerificationToken = async (values: z.infer<typeof resetSchema>) => {
   //
   const validateFields = resetSchema.safeParse(values);
   const { email } = values;

@@ -22,7 +22,7 @@ import { FormSuccess } from "../form-success";
 import { login } from "@/actions/login";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { resetPassword } from "@/actions/reset";
+import { resetPasswordVerificationToken } from "@/actions/reset";
 
 const ResetForm = () => {
   const [isPending, startTransition] = useTransition();
@@ -42,7 +42,7 @@ const ResetForm = () => {
     setSuccess("");
 
     startTransition(() => {
-      resetPassword(values).then((data) => {
+      resetPasswordVerificationToken(values).then((data) => {
         setError(data?.error);
         setSuccess(data?.success);
       });
