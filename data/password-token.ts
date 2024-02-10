@@ -50,7 +50,7 @@ export const generatePasswordResetToken = async (email: string) => {
   }
 };
 
-// TODO:
+// 
 export const verifyPasswordResetToken = async (
   email: string,
   token: string

@@ -50,3 +50,9 @@ export const passwordResetSchema = z
     message: "Passwords don't match",
     path: ["confirmPassword"], // path of error
   });
+
+  export const twofactorSchema = z.object({
+    twoFacorCode: z.string().length(6, {
+      message: "Code should be a 6 digitals "
+    })
+  })

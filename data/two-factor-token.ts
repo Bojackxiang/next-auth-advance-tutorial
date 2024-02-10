@@ -1,10 +1,11 @@
 import { db } from "@/lib/db";
-import { uuidv4 as uuid } from "uuid";
+
+import { randomInt } from 'crypto'
 
 //
 export const getTwoFactorTokenByToken = async (token: string) => {
   try {
-    return await db.twoFactorConfirmationModel.findFirst({
+    return await db.twoFactorToken.findFirst({
       where: {
         token,
       },
@@ -16,7 +17,7 @@ export const getTwoFactorTokenByToken = async (token: string) => {
 
 export const getTwoFactorTokenById = async (id: string) => {
   try {
-    return await db.twoFactorConfirmationModel.findFirst({
+    return await db.twoFactorToken.findUnique({
       where: {
         id,
       },
@@ -26,9 +27,10 @@ export const getTwoFactorTokenById = async (id: string) => {
   }
 };
 
+
 export const deleteTwoFactorTokenById = async (id: string) => {
   try {
-    return await db.twoFactorConfirmationModel.delete({
+    return await db.twoFactorToken.delete({
       where: {
         id,
       },
@@ -41,7 +43,7 @@ export const deleteTwoFactorTokenById = async (id: string) => {
 
 export const updateTwoFactorTokenById = async (id: string, token: string) => {
   try {
-    return await db.twoFactorConfirmationModel.update({
+    return await db.twoFactorToken.update({
       where: {
         id,
       },
@@ -53,20 +55,97 @@ export const updateTwoFactorTokenById = async (id: string, token: string) => {
     console.error(error);
     return null;
   }
+
 };
 
-export const createTwoFactorTokenByEmail = async (userId: string) => {
-  const token = await uuid();
+export const createTwoFactorTokenByEmail = async (email: string) => {
+  // 
+  const oneTimePassword = randomInt(100000, 999999)
   try {
-    return await db.twoFactorConfirmationModel.create({
-      data: {
-        userId,
+    const existingUser = await db.user.findUnique({
+      where: {
+        email: email
+      }
+    })
 
-        token: token,
-      },
+    if (existingUser == null) {
+      console.error("User is not found")
+      return null
+    }
+
+    const userEmail = existingUser.email;
+
+    if (userEmail == null) {
+      console.error("Current user dose not has email")
+      return null
+    }
+
+    const twoFactorTokenByEmail = await db.twoFactorToken.findFirst({
+      where: {
+        email: userEmail
+      }
     });
+
+    // if not corresponding email found, create new two factor token
+    console.log({ oneTimePassword })
+    if (twoFactorTokenByEmail === null) {
+      console.log({ twoFactorTokenByEmail })
+      return await db.twoFactorToken.create({
+        data: {
+          email: userEmail,
+          token: `${oneTimePassword}`,
+          expires: new Date(new Date().getTime() + +3600 * 10000),
+        },
+      });
+    } else {
+      return await db.twoFactorToken.update({
+        where: {
+          id: twoFactorTokenByEmail.id,
+        },
+        data: {
+          token: `${oneTimePassword}`,
+        }
+      })
+    }
+
+
   } catch (error) {
     console.error(error);
     return null;
   }
 };
+
+export const verifyTwoFactorToken = async (email: string, token: string) => {
+  try {
+
+    const foundTokenByEmail = await db.twoFactorToken.findFirst({
+      where: {
+        email,
+        token
+      }
+    })
+
+    if (foundTokenByEmail === null) {
+      return false;
+    }
+
+    await deleteTwoFactorTokenById(foundTokenByEmail.id)
+
+    return true;
+
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+export const getTwoFactorTokenByEmail = async (email: string | null) => {
+  if (!email) {
+    return null
+  }
+  return await db.twoFactorToken.findFirst({
+    where: {
+      email,
+    }
+  })
+}

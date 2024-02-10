@@ -18,7 +18,6 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   
 };
 
-
 export const sendPasswordResetEmail = async (email: string, token: string) => {
   try {
     const confirmationLink = `http://localhost:3000/auth/new-password?token=${token}`;
@@ -33,4 +32,19 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
     console.error(error)
   }
   
+};
+
+export const sendTwoFactorToEmail = async (email: string, token: string) => {
+  try {
+    
+    await resend.emails.send({
+      from: "onboard@resend.dev",
+      to: email,
+      subject: "Login by click the link",
+      html: `<p> Your one time password is ${token} </a></p>`,
+    });
+  } catch (error) {
+    console.error(error)
+  }
+
 };

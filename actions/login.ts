@@ -8,14 +8,15 @@ import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
 import { getUserByEmail } from "@/data/user";
 import { generateVerificationToken } from "@/lib/tokens";
-import { sendVerificationEmail } from "@/lib/mail";
+import { sendTwoFactorToEmail, sendVerificationEmail } from "@/lib/mail";
+import { createTwoFactorTokenByEmail } from "@/data/two-factor-token";
 
 export const login = async (values: z.infer<typeof loginSchema>) => {
   //
   const validateFields = loginSchema.safeParse(values);
   const { email, password } = values;
 
-  //
+  // 
   if (!validateFields.success) {
     return {
       error: "Invalid Field!",
@@ -44,7 +45,25 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
     // email has been verified
 
     try {
+
+      if (existingUser.isTwoFactorEnabled) {
+        const tokenObj = await createTwoFactorTokenByEmail(existingUser.email)
+        if (!tokenObj) {
+          return {
+            error: "Unable to generate two factor token!"
+          }
+        };
+
+        sendTwoFactorToEmail(existingUser.email, tokenObj?.token)
+        return {
+          success: "Two Factor token has been generated, check your email",
+          twoFactors: true
+        }
+      }
+
+
       // 这边 的 signin 实际上是利用了 auth.config 中的 credentials 来进行登陆
+      console.log("About to signin")
       await signIn("credentials", {
         email,
         password,
@@ -55,6 +74,7 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
         success: "",
       };
     } catch (error) {
+
       if (error instanceof AuthError) {
         switch (error.type) {
           case "CredentialsSignin":
