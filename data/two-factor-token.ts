@@ -36,7 +36,6 @@ export const deleteTwoFactorTokenById = async (id: string) => {
       },
     });
   } catch (error) {
-    console.log(error);
     return null;
   }
 };
@@ -87,9 +86,7 @@ export const createTwoFactorTokenByEmail = async (email: string) => {
     });
 
     // if not corresponding email found, create new two factor token
-    console.log({ oneTimePassword })
     if (twoFactorTokenByEmail === null) {
-      console.log({ twoFactorTokenByEmail })
       return await db.twoFactorToken.create({
         data: {
           email: userEmail,

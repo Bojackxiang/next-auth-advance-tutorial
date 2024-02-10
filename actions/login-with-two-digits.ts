@@ -6,7 +6,6 @@ import { DEFAULT_LOGIN_REDIRECT } from '@/routes'
 
 const loginWithTwoDigits = async (digits: string, email: string, password: string) => {
   const isVerified = await verifyTwoFactorToken(email, digits)
-  console.log('isVerified: ', isVerified);
 
   if (isVerified) {
     await signIn("credentials", {

@@ -22,7 +22,6 @@ export default {
     }),
     credentials({
       async authorize(credentials) {
-        console.debug("__email_and_password_credentials_provider__");
         try {
           const verifiedFields = loginSchema.safeParse(credentials);
 
@@ -48,7 +47,6 @@ export default {
 
           return null;
         } catch (error) {
-          console.error("authorize");
           console.error(error);
           return null
         }

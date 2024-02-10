@@ -63,7 +63,6 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
 
 
       // 这边 的 signin 实际上是利用了 auth.config 中的 credentials 来进行登陆
-      console.log("About to signin")
       await signIn("credentials", {
         email,
         password,

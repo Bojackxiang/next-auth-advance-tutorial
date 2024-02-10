@@ -17,7 +17,6 @@ interface LoginFormTwoFactorsInput {
 
 const LoginFormTwoFactorsInput: React.FC<LoginFormTwoFactorsInput> = (props) => {
   const { email, password } = props;
-  console.log({ email, password });
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("")
   const [success, setSuccess] = useState<string | undefined>("")

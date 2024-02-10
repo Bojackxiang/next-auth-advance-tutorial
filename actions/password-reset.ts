@@ -10,7 +10,6 @@ export const resetPassword = async (
   values: z.infer<typeof passwordResetSchema>
 ) => {
   try {
-    console.log("__ starting verify__");
     // verify inputs
     const validateFields = passwordResetSchema.safeParse(values);
     if (!validateFields.success) {
